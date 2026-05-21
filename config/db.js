@@ -1,26 +1,24 @@
 const { MongoClient } = require("mongodb");
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
 
-let db;
+
+if (!uri) {
+  console.error("CRITICAL ERROR: MONGODB_URI is not defined in .env file!");
+  process.exit(1);
+}
+
+const client = new MongoClient(uri);
+let db = null;
 
 const connectDB = async () => {
-  try {
-    await client.connect();
-    db = client.db("sportnest");
-    console.log("MongoDB Native Driver Connected Successfully!");
-  } catch (error) {
-    console.error("MongoDB Connection Error:", error.message);
-    process.exit(1);
-  }
-};
-
-const getDB = () => {
-  if (!db) {
-    throw new Error("Database not initialized! Call connectDB first.");
-  }
+  if (db) return db;
+  await client.connect();
+  db = client.db("sportnest");
+  console.log("MongoDB Native Driver Connected Successfully!");
   return db;
 };
+
+const getDB = () => db;
 
 module.exports = { connectDB, getDB };

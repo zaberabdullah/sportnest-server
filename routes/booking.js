@@ -2,11 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { ObjectId } = require("mongodb");
 const { getDB } = require("../config/db");
+const { requireAuth } = require("../middleware/auth"); 
 
-router.post("/", async (req, res) => {
+
+router.post("/", requireAuth, async (req, res) => {
   try {
     const db = getDB();
-    const { facility_id, user_email, booking_date, time_slot, hours, total_price } = req.body;
+    const { facility_id, booking_date, time_slot, hours, total_price } = req.body;
+    const user_email = req.user.email; 
 
     const facilityObjectId = new ObjectId(facility_id);
 
@@ -33,7 +36,6 @@ router.post("/", async (req, res) => {
     };
 
     const result = await db.collection("bookings").insertOne(newBooking);
-
     await db.collection("facilities").updateOne({ _id: facilityObjectId }, { $inc: { booking_count: 1 } });
 
     res.status(201).json({
@@ -46,10 +48,16 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/my-bookings/:email", async (req, res) => {
+
+router.get("/my-bookings/:email", requireAuth, async (req, res) => { 
   try {
     const db = getDB();
     const { email } = req.params;
+
+   
+    if (email !== req.user.email) {
+      return res.status(403).json({ success: false, message: "Forbidden" });
+    }
 
     const bookings = await db
       .collection("bookings")
@@ -64,6 +72,7 @@ router.get("/my-bookings/:email", async (req, res) => {
           },
         },
         { $unwind: "$facility_details" },
+        { $sort: { createdAt: -1 } },
       ])
       .toArray();
 
@@ -73,17 +82,28 @@ router.get("/my-bookings/:email", async (req, res) => {
   }
 });
 
-router.patch("/cancel/:id", async (req, res) => {
+router.patch("/cancel/:id", requireAuth, async (req, res) => { // requireAuth এড করো
   try {
     const db = getDB();
     const { id } = req.params;
+
+  
+    const booking = await db.collection("bookings").findOne({ _id: new ObjectId(id) });
+    
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+    
+    if (booking.user_email !== req.user.email) {
+      return res.status(403).json({ success: false, message: "You can only cancel your own bookings" });
+    }
 
     const result = await db
       .collection("bookings")
       .updateOne({ _id: new ObjectId(id) }, { $set: { status: "cancelled" } });
 
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ success: false, message: "Booking not found or already cancelled" });
+      return res.status(404).json({ success: false, message: "Booking already cancelled" });
     }
 
     res.status(200).json({ success: true, message: "Booking cancelled successfully" });
