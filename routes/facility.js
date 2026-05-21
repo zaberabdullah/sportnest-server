@@ -6,6 +6,8 @@ const { requireAuth } = require("../middleware/auth");
 
 
 router.post("/", async (req, res) => {
+  console.log("HIT BACKEND POST /api/facility");
+  console.log("Body:", req.body);
   try {
     const db = getDB();
     const {

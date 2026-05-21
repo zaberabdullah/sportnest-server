@@ -82,7 +82,7 @@ router.get("/my-bookings/:email", requireAuth, async (req, res) => {
   }
 });
 
-router.patch("/cancel/:id", requireAuth, async (req, res) => { // requireAuth এড করো
+router.patch("/cancel/:id", requireAuth, async (req, res) => { 
   try {
     const db = getDB();
     const { id } = req.params;
