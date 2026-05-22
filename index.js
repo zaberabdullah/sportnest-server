@@ -1,19 +1,25 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+const cors = require("cors"); 
 const PORT = process.env.PORT || 5000;
 const { connectDB } = require("./config/db");
-const cors = require("cors");
 const { toNodeHandler } = require("better-auth/node");
 const { getAuth } = require("./lib/auth");
 
-app.use(cors({
+const corsOptions = {
   origin: [
     "http://localhost:3000",
-    process.env.CLIENT_URL 
-  ],
+    "https://sportnest-client-sigma.vercel.app", 
+    process.env.CLIENT_URL
+  ].filter(Boolean),
   credentials: true,
-}));
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 const startServer = async () => {
@@ -23,12 +29,12 @@ const startServer = async () => {
 
     const auth = getAuth();
 
+   
     app.all("/api/auth/*splat", toNodeHandler(auth.handler));
 
     app.use("/api/facility", require("./routes/facility"));
     app.use("/api/booking", require("./routes/booking"));
 
- 
     app.get("/", (req, res) => {
       res.json({ message: "SPORTnest Server Running" });
     });
