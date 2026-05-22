@@ -1,16 +1,16 @@
 {
   "name": "sportnest-server",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "vercel dev",
+    "start": "node api/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "better-auth": "^1.6.11",
     "cookie-parser": "^1.4.7",

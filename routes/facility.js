@@ -1,11 +1,11 @@
-const express = require("express");
+import express from "express";
+import { ObjectId } from "mongodb";
+import { getDB } from "../config/db.js";
+import { requireAuth } from "../middleware/auth.js";
+
 const router = express.Router();
-const { ObjectId } = require("mongodb");
-const { getDB } = require("../config/db");
-const { requireAuth } = require("../middleware/auth"); 
 
-
-router.post("/", requireAuth, async (req, res) => { 
+router.post("/", requireAuth, async (req, res) => {
   console.log("HIT BACKEND POST /api/facility");
   try {
     const db = getDB();
@@ -18,10 +18,8 @@ router.post("/", requireAuth, async (req, res) => {
       available_slots,
       description,
       image,
-      
     } = req.body;
 
-    
     const owner_email = req.user.email;
 
     const newFacility = {
@@ -30,9 +28,9 @@ router.post("/", requireAuth, async (req, res) => {
       location,
       price_per_hour: parseFloat(price_per_hour),
       capacity: parseInt(capacity),
-      available_slots: Array.isArray(available_slots)? available_slots : [available_slots],
+      available_slots: Array.isArray(available_slots) ? available_slots : [available_slots],
       description,
-      owner_email, 
+      owner_email,
       image,
       booking_count: 0,
       createdAt: new Date(),
@@ -56,12 +54,12 @@ router.get("/", async (req, res) => {
     let query = {};
 
     if (search) {
-      query.name = { $regex: search, $options: "i" }; 
+      query.name = { $regex: search, $options: "i" };
     }
 
     if (type) {
       const typesArray = type.split(",");
-      query.facility_type = { $in: typesArray }; 
+      query.facility_type = { $in: typesArray };
     }
 
     if (user_email) {
@@ -74,7 +72,6 @@ router.get("/", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 router.get("/:id", async (req, res) => {
   try {
@@ -89,7 +86,6 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Invalid Facility ID format!" });
   }
 });
-
 
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
@@ -109,7 +105,6 @@ router.delete("/:id", requireAuth, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 router.put("/:id", requireAuth, async (req, res) => {
   try {
@@ -139,4 +134,4 @@ router.put("/:id", requireAuth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

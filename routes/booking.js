@@ -1,15 +1,15 @@
-const express = require("express");
-const router = express.Router();
-const { ObjectId } = require("mongodb");
-const { getDB } = require("../config/db");
-const { requireAuth } = require("../middleware/auth"); 
+import express from "express";
+import { ObjectId } from "mongodb";
+import { getDB } from "../config/db.js";
+import { requireAuth } from "../middleware/auth.js";
 
+const router = express.Router();
 
 router.post("/", requireAuth, async (req, res) => {
   try {
     const db = getDB();
     const { facility_id, booking_date, time_slot, hours, total_price } = req.body;
-    const user_email = req.user.email; 
+    const user_email = req.user.email;
 
     const facilityObjectId = new ObjectId(facility_id);
 
@@ -48,13 +48,11 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
-
-router.get("/my-bookings/:email", requireAuth, async (req, res) => { 
+router.get("/my-bookings/:email", requireAuth, async (req, res) => {
   try {
     const db = getDB();
     const { email } = req.params;
 
-   
     if (email !== req.user.email) {
       return res.status(403).json({ success: false, message: "Forbidden" });
     }
@@ -82,12 +80,11 @@ router.get("/my-bookings/:email", requireAuth, async (req, res) => {
   }
 });
 
-router.patch("/cancel/:id", requireAuth, async (req, res) => { 
+router.patch("/cancel/:id", requireAuth, async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
 
-  
     const booking = await db.collection("bookings").findOne({ _id: new ObjectId(id) });
     
     if (!booking) {
@@ -112,4 +109,4 @@ router.patch("/cancel/:id", requireAuth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,7 +1,6 @@
-const { MongoClient } = require("mongodb");
+import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
-
 
 if (!uri) {
   console.error("CRITICAL ERROR: MONGODB_URI is not defined in .env file!");
@@ -11,7 +10,7 @@ if (!uri) {
 const client = new MongoClient(uri);
 let db = null;
 
-const connectDB = async () => {
+export const connectDB = async () => {
   if (db) return db;
   await client.connect();
   db = client.db("sportnest");
@@ -19,6 +18,4 @@ const connectDB = async () => {
   return db;
 };
 
-const getDB = () => db;
-
-module.exports = { connectDB, getDB };
+export const getDB = () => db;
