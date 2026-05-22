@@ -7,13 +7,24 @@ import { toNodeHandler } from "better-auth/node";
 
 const app = express();
 
-app.use(cors({
-  origin: ["http://localhost:3000", "https://sportnest-client-sigma.vercel.app"],
-  credentials: true
-}));
+
+const corsOptions = {
+  origin: [
+    "http://localhost:3000", 
+    "https://sportnest-client-sigma.vercel.app"
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Preflight fix
+
 app.use(express.json());
 app.use(cookieParser());
 
+// 2. DB Connect
 let dbConnected = false;
 app.use(async (req, res, next) => {
   try {
@@ -28,10 +39,11 @@ app.use(async (req, res, next) => {
   }
 });
 
+
 const auth = getAuth();
 app.use("/api/auth", toNodeHandler(auth.handler));
 
-// Routes import kor - .js lagbe
+// 4. Tor Routes
 import facilityRoutes from "../routes/facility.js";
 import bookingRoutes from "../routes/booking.js";
 
