@@ -5,6 +5,7 @@ import { connectDB } from "../config/db.js";
 import { getAuth } from "../lib/auth.js";
 import { toNodeHandler } from "better-auth/node";
 import facilityRoutes from "../routes/facility.js";
+import bookingRoutes from "../routes/booking.js"; 
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.all("/api/auth/{*path}", toNodeHandler(auth.handler));
 
 app.use(express.json());
 app.use("/api/facility", facilityRoutes);
+app.use("/api/booking", bookingRoutes);
 app.get("/", (req, res) => res.json({ message: "SportNest API Active" }));
 
 export default app;
