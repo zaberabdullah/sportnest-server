@@ -1,26 +1,22 @@
-const mongoose = require('mongoose');
+// config/db.js
+import { MongoClient } from "mongodb";
 
-let cached = global.mongoose;
+const uri = process.env.MONGODB_URI;
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+let client;
+let db;
+
+export async function connectDB() {
+  if (db) return db;
+  
+  client = new MongoClient(uri);
+  await client.connect();
+  db = client.db(); // DB name URI te thakle auto pick korbe
+  console.log("MongoDB Connected!");
+  return db;
 }
 
-async function connectDB() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-    cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
-  }
-  cached.conn = await cached.promise;
-  return cached.conn;
+export function getDB() {
+  if (!db) throw new Error("DB not connected! Call connectDB first.");
+  return db;
 }
-
-module.exports = connectDB;
