@@ -19,7 +19,7 @@ await connectDB(); // ✅ ekbar connect, getDB() everywhere use hobe
 
 const auth = getAuth();
 
-app.all("/api/auth/*", toNodeHandler(auth.handler));
+app.all("/api/auth/*splat", toNodeHandler(auth.handler));
 app.use("/api/facility", facilityRoutes);
 app.get("/", (req, res) => res.json({ message: "SportNest API Active" }));
 
