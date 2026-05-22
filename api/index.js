@@ -1,3 +1,4 @@
+// api/index.js
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -7,52 +8,27 @@ import { toNodeHandler } from "better-auth/node";
 
 const app = express();
 
-
-const corsOptions = {
-  origin: [
-    "http://localhost:3000", 
-    "https://sportnest-client-sigma.vercel.app"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-const connectDB = require('../config/db');
-connectDB();
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Preflight fix
+// CORS কনফিগারেশন একদম সিম্পল রাখো
+app.use(cors({
+    origin: ["https://sportnest-client-sigma.vercel.app", "http://localhost:3000"],
+    credentials: true,
+}));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// 2. DB Connect
-let dbConnected = false;
-app.use(async (req, res, next) => {
-  try {
-    if (!dbConnected) {
-      await connectDB();
-      dbConnected = true;
-    }
-    next();
-  } catch (err) {
-    console.error("DB Error:", err);
-    res.status(500).json({ error: "Database connection failed" });
-  }
-});
-
+// ডাটাবেজ কানেকশন এখানে আগে নিশ্চিত করো
+await connectDB(); 
 
 const auth = getAuth();
-app.use("/api/auth", toNodeHandler(auth.handler));
 
-// 4. Tor Routes
+// Better Auth হ্যান্ডলার
+app.all("/api/auth/*", toNodeHandler(auth.handler));
+
+// অন্যান্য রাউট
 import facilityRoutes from "../routes/facility.js";
-import bookingRoutes from "../routes/booking.js";
-
 app.use("/api/facility", facilityRoutes);
-app.use("/api/booking", bookingRoutes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "SPORTnest Server Running on Vercel" });
-});
+app.get("/", (req, res) => res.json({ message: "SportNest API Active" }));
 
 export default app;
