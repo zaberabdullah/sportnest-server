@@ -11,7 +11,7 @@ export async function connectDB() {
   
   client = new MongoClient(uri);
   await client.connect();
-  db = client.db(); // DB name URI te thakle auto pick korbe
+  db = client.db();
   console.log("MongoDB Connected!");
   return db;
 }

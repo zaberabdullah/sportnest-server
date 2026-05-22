@@ -22,7 +22,7 @@ const auth = getAuth();
 
 app.all("/api/auth/{*path}", toNodeHandler(auth.handler));
 
-// Eta auth er PORE
+
 app.use(express.json());
 app.use("/api/facility", facilityRoutes);
 app.get("/", (req, res) => res.json({ message: "SportNest API Active" }));
