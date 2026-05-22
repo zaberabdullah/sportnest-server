@@ -3,9 +3,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
-const { connectDB } = require("./config/db");
-const { toNodeHandler } = require("better-auth/node");
-const { getAuth } = require("./lib/auth");
+
+
+app.set("trust proxy", 1); 
 
 const corsOptions = {
   origin: [
@@ -19,8 +19,12 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("/{*any}", cors(corsOptions)); 
+app.options("/{*any}", cors(corsOptions));
 app.use(express.json());
+
+const { connectDB } = require("./config/db");
+const { getAuth } = require("./lib/auth");
+const { toNodeHandler } = require("better-auth/node");
 
 const startServer = async () => {
   try {
