@@ -2,8 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const cookieParser = require("cookie-parser"); // <-- ADD KORO
 const PORT = process.env.PORT || 5000;
-
 
 app.set("trust proxy", 1); 
 
@@ -21,6 +21,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("/{*any}", cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser()); 
 
 const { connectDB } = require("./config/db");
 const { getAuth } = require("./lib/auth");
