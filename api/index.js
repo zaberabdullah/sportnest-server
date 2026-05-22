@@ -17,7 +17,8 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
-
+const connectDB = require('../config/db');
+connectDB();
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions)); // Preflight fix
 

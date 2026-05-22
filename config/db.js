@@ -1,21 +1,26 @@
-import { MongoClient } from "mongodb";
+const mongoose = require('mongoose');
 
-const uri = process.env.MONGODB_URI;
+let cached = global.mongoose;
 
-if (!uri) {
-  console.error("CRITICAL ERROR: MONGODB_URI is not defined in .env file!");
-  process.exit(1);
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
-const client = new MongoClient(uri);
-let db = null;
+async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
 
-export const connectDB = async () => {
-  if (db) return db;
-  await client.connect();
-  db = client.db("sportnest");
-  console.log("MongoDB Native Driver Connected Successfully!");
-  return db;
-};
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+    cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
 
-export const getDB = () => db;
+module.exports = connectDB;
